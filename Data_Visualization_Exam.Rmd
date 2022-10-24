@@ -27,8 +27,16 @@ library(dplyr)
 library(tidyverse)
 ```
 
+```{r}
+glimpse(heart)
+```
+
 ```{r Editing column type}
-as.factor(c(heart$anaemia, heart$diabetes, heart$high_blood_pressure, heart$sex, heart$smoking, heart$DEATH_EVENT))
+heart = as.factor(c(heart$anaemia, heart$diabetes, heart$high_blood_pressure, heart$sex, heart$smoking, heart$DEATH_EVENT))
+```
+
+```{r}
+summary(heart)
 ```
 
 ```{r Age histogram}
