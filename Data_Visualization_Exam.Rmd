@@ -32,7 +32,10 @@ glimpse(heart)
 ```
 
 ```{r Editing column type}
-heart = as.factor(c(heart$anaemia, heart$diabetes, heart$high_blood_pressure, heart$sex, heart$smoking, heart$DEATH_EVENT))
+for (i in c(2,4,6,10,11,13)){
+  heart[,i] = as.factor(heart[,i])
+}
+glimpse(heart)
 ```
 
 ```{r}
