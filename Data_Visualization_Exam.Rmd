@@ -5,3 +5,18 @@ date: "2022-10-24"
 output: html_document
 ---
 
+The dataset consists of data regarding **299 patients** possibly affected by cardiovascular deseases.
+The variables taken into account for the analysis are:
+* **Age**
+* **Sex**
+* 
+* **Anaemia**: decrease of red blood cells or haemoglobin **(Boolean)**
+* **Creatinine_phosphokinase**: level of the CPK enzyme in the blood **(mcg/L)**
+* **Diabetes**: whether the patient has diabetes **(Bolean)**
+* **Ejection_fraction**: Percentage of blood leaving the heart at each contraction
+* **high_blood_pressure**: whether the patient suffers from hypertension
+* **Platelets**: Platelets in the blood **(kiloplatelets/mL)*
+* **serum_creatinine**: Level of serum creatinine in the blood **(mg/dL)**
+* **serum_sodium**: Level of serum sodium in the blood **(mEq/L)**
+* **Smoking**: If the patient smokes or not **(Boolean)**
+* **Time**: Follow-up period **(days)**
