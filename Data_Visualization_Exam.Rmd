@@ -21,16 +21,21 @@ The variables taken into account for the analysis are:
 * **Smoking**: If the patient smokes or not **(Boolean)**
 * **Time**: Follow-up period **(days)**
 
-```{r}
+```{r Editing column type}
+as.factor(c(heart$anaemia, heart$diabetes, heart$high_blood_pressure, heart$sex, heart$smoking, heart$DEATH_EVENT))
+```
+
+```{r Library}
 library(ggplot2)
 library(dplyr)
 library(tidyverse)
 ```
 
-```{r}
+```{r Age histogram}
 ggplot(heart, aes(x = age)) +
   geom_histogram(aes(y = ..density..), binwidth = 10, fill = 'cyan3', color = 'white') +
   theme_minimal() + 
   geom_vline(xintercept = mean(heart$age), color = 'deeppink2') +
   labs(x = 'Age', y='Density')
+  
 ```
