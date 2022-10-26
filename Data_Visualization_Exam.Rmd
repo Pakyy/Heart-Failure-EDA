@@ -36,6 +36,8 @@ glimpse(heart)
 for (i in c(2,4,6,10,11,13)){
   heart[,i] = as.factor(heart[,i])
 }
+heart$sex[heart$sex==0] <- 'Female'
+heart$sex[heart$sex==1] <- 'Male'
 glimpse(heart)
 ```
 
