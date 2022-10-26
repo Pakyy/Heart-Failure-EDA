@@ -47,8 +47,10 @@ ggplot(heart, aes(x = age)) +
   geom_histogram(aes(y = ..density..), binwidth = 10, fill = 'cyan3', color = 'white') +
   theme_minimal() + 
   geom_vline(xintercept = mean(heart$age), color = 'deeppink2') +
-  labs(x = 'Age', y='Density')
+  labs(x = 'Age', y='Density')+
+  scale_x_continuous(breaks= c(35, 45,55,65,75,85,95))
 ```
+
 ```{r}
 ggplot(heart, aes(x = creatinine_phosphokinase)) +
   geom_histogram(aes(y = ..density..), binwidth = 100, fill = 'cyan3', color = 'white') +
