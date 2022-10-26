@@ -39,7 +39,7 @@ glimpse(heart)
 ```
 
 ```{r}
-summary(heart)
+data.frame(unclass(summary(heart)), check.names = FALSE, stringsAsFactors = FALSE)
 ```
 
 ```{r Age histogram}
@@ -49,6 +49,15 @@ ggplot(heart, aes(x = age)) +
   geom_vline(xintercept = mean(heart$age), color = 'deeppink2') +
   labs(x = 'Age', y='Density')
 ```
+```{r}
+ggplot(heart, aes(x = creatinine_phosphokinase)) +
+  geom_histogram(aes(y = ..density..), binwidth = 100, fill = 'cyan3', color = 'white') +
+  theme_minimal() + 
+  geom_vline(xintercept = mean(heart$creatinine_phosphokinase), color = 'deeppink2') +
+  geom_vline(xintercept = median(heart$creatinine_phosphokinase), color = 'purple') +
+  labs(x = 'CPK', y='Density')
+```
+
 ```{r Age Boxplot according to sex}
 ggplot(heart, aes(x=sex, y = age, fill = sex))+
   geom_boxplot()+
