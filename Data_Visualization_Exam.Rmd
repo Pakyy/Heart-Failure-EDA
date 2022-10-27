@@ -64,6 +64,33 @@ ggplot(heart, aes(x = creatinine_phosphokinase)) +
   geom_vline(xintercept = median(heart$creatinine_phosphokinase), color = 'purple') +
   labs(x = 'CPK', y='Density')
 ```
+```{r Variability measures}
+var <- c(var(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+var(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+
+sd <- c(sd(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+sd(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+
+diff <- c(diff(range(filter(heart, sex == 'Male')$creatinine_phosphokinase)),
+diff(range(filter(heart, sex == 'Female')$creatinine_phosphokinase)))
+
+interquartile_range <- function(x){
+diff(quantile(x, probs = c(0.25, 0.75)))
+}
+
+iq <- c(interquartile_range(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+interquartile_range(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+
+MAD <- function(x) {
+median(abs(x - median(x)))
+}
+
+mad <- c(MAD(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+MAD(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+
+data.frame(sex, var, sd, diff, iq, mad)
+
+```
 
 ```{r Boxplots in base al sesso}
 options(scipen = 999)
