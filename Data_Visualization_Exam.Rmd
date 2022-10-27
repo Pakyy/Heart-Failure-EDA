@@ -116,3 +116,30 @@ bp11 = ggplot(heart, aes(x = diabetes, y = platelets, fill = diabetes)) + geom_b
 bp12 = ggplot(heart, aes(x = diabetes, y = ejection_fraction, fill = diabetes)) + geom_boxplot()
 grid.arrange(bp9,bp10,bp11,bp12, nrow = 2)
 ```
+```{r 3rd and 4th moment }
+
+heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
+mean(heart$cpk_standard)
+
+d1 <- ggplot(filter(heart, sex == 'Male'), aes(x= cpk_standard, color = sex ))+
+  geom_density(color = '#6dca7c')+
+  labs(x='CPK')+
+  theme_bw()+
+    scale_x_continuous(breaks= c(-1,0,1,2,3,4,5,6,7))
+
+
+d2 <- ggplot(filter(heart, sex == 'Female'), aes(x= cpk_standard ))+
+  geom_density(color = '#933183')+
+  labs(x='CPK')+
+  theme_bw()+
+  scale_x_continuous(breaks= c(-1,0,1,2,3,4))
+
+grid.arrange(d1, d2)
+#add labels
+
+skew <- c(skewness(filter(heart, sex == 'Male')$creatinine_phosphokinase), skewness(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+
+kurt <- c(kurtosis(filter(heart, sex == 'Male')$creatinine_phosphokinase), kurtosis(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+
+data.frame(sex, skew, kurt)
+```
