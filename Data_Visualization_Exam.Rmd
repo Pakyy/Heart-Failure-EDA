@@ -31,6 +31,7 @@ library(dplyr)
 library(tidyverse)
 library(tidyr)
 library(gridExtra)
+library(GGally)
 ```
 
 ```{r}
@@ -146,4 +147,10 @@ skew <- c(skewness(filter(heart, sex == 'Male')$creatinine_phosphokinase), skewn
 kurt <- c(kurtosis(filter(heart, sex == 'Male')$creatinine_phosphokinase), kurtosis(filter(heart, sex == 'Female')$creatinine_phosphokinase))
 
 data.frame(sex, skew, kurt)
+```
+
+In order to understand which variables might be related a paired scatterplot is represented.
+```{r Paired Scatterplot}
+ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
 ```
