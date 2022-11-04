@@ -13,7 +13,7 @@ The variables taken into account for the analysis are:
 * 
 * **Anaemia**: decrease of red blood cells or haemoglobin **(Boolean)**
 * **Creatinine_phosphokinase**: level of the CPK enzyme in the blood **(mcg/L)**
-* **Diabetes**: whether the patient has diabetes **(Bolean)**
+* **Diabetes**: whether the patient has diabetes **(Boolean)**
 * **Ejection_fraction**: Percentage of blood leaving the heart at each contraction
 * **high_blood_pressure**: whether the patient suffers from hypertension
 * **Platelets**: Platelets in the blood **(kiloplatelets/mL)*
@@ -21,6 +21,7 @@ The variables taken into account for the analysis are:
 * **serum_sodium**: Level of serum sodium in the blood **(mEq/L)**
 * **Smoking**: If the patient smokes or not **(Boolean)**
 * **Time**: Follow-up period **(days)**
+* **Death_event**: If the patient died for a cardiac arrest or not **(Boolean)**
 
 ```{r Library}
 library(ggplot2)
