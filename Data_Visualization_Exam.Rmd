@@ -32,23 +32,25 @@ library(tidyverse)
 library(tidyr)
 library(gridExtra)
 library(GGally)
+library(moments)
+library(corrplot)
 ```
 
 ```{r}
+heart <- read.csv("~/Downloads/heart_failure_clinical_records_dataset.csv")
 glimpse(heart)
 ```
 
 ```{r Editing column type}
-for (i in c(2,4,6,11,13)){
+for (i in c(2,4,6,13)){
   heart[,i] = as.factor(heart[,i])
 }
 heart$sex[heart$sex==0] <- 'Female'
 heart$sex[heart$sex==1] <- 'Male'
-
 heart$smoking[heart$smoking==0] <- 'No'
 heart$smoking[heart$smoking==1] <- 'Yes'
 heart$sex = as.factor(heart$sex)
-attach(heart)
+heart$smoking = as.factor(heart$smoking)
 glimpse(heart)
 ```
 
@@ -64,16 +66,15 @@ ggplot(heart, aes(x = age)) +
   labs(x = 'Age', y='Density')+
   scale_x_continuous(breaks= c(35, 45,55,65,75,85,95))
 ```
+
 ```{r Central Tendency}
 ggplot(heart, aes(x = creatinine_phosphokinase, color = sex))+
   stat_ecdf()+
   labs(x = 'CPK', y='F(CPK)')
-
 sex <- c('Male','Female')
 mean <- c(mean(filter(heart, sex == 'Male')$creatinine_phosphokinase),mean(filter(heart, sex == 'Female')$creatinine_phosphokinase))
 median <- c(median(filter(heart, sex == 'Male')$creatinine_phosphokinase),median(filter(heart, sex == 'Female')$creatinine_phosphokinase)
 )
-
 data.frame(sex, mean, median)
 ```
 
@@ -85,33 +86,28 @@ ggplot(heart, aes(x = creatinine_phosphokinase)) +
   geom_vline(xintercept = median(heart$creatinine_phosphokinase), color = 'purple') +
   labs(x = 'CPK', y='Density')
 ```
+
 ```{r Variability measures}
+attach(heart)
 var <- c(var(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 var(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-
 sd <- c(sd(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 sd(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-
 diff <- c(diff(range(filter(heart, sex == 'Male')$creatinine_phosphokinase)),
 diff(range(filter(heart, sex == 'Female')$creatinine_phosphokinase)))
-
 interquartile_range <- function(x){
 diff(quantile(x, probs = c(0.25, 0.75)))
 }
-
 iq <- c(interquartile_range(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 interquartile_range(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-
 MAD <- function(x) {
 median(abs(x - median(x)))
 }
-
 mad <- c(MAD(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 MAD(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-
 data.frame(sex, var, sd, diff, iq, mad)
-
 ```
+
 
 ```{r Boxplots in base al sesso}
 options(scipen = 999)
@@ -137,35 +133,29 @@ bp11 = ggplot(heart, aes(x = diabetes, y = platelets, fill = diabetes)) + geom_b
 bp12 = ggplot(heart, aes(x = diabetes, y = ejection_fraction, fill = diabetes)) + geom_boxplot()
 grid.arrange(bp9,bp10,bp11,bp12, nrow = 2)
 ```
-```{r 3rd and 4th moment }
 
+```{r 3rd and 4th moment }
 heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
 mean(heart$cpk_standard)
-
 d1 <- ggplot(filter(heart, sex == 'Male'), aes(x= cpk_standard, color = sex ))+
   geom_density(color = '#6dca7c')+
   labs(x='CPK')+
   theme_bw()+
     scale_x_continuous(breaks= c(-1,0,1,2,3,4,5,6,7))
-
-
 d2 <- ggplot(filter(heart, sex == 'Female'), aes(x= cpk_standard ))+
   geom_density(color = '#933183')+
   labs(x='CPK')+
   theme_bw()+
   scale_x_continuous(breaks= c(-1,0,1,2,3,4))
-
 grid.arrange(d1, d2)
 #add labels
-
 skew <- c(skewness(filter(heart, sex == 'Male')$creatinine_phosphokinase), skewness(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-
 kurt <- c(kurtosis(filter(heart, sex == 'Male')$creatinine_phosphokinase), kurtosis(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-
 data.frame(sex, skew, kurt)
 ```
 
 In order to understand which variables might be related a paired scatterplot is represented.
+
 ```{r Paired Scatterplot}
 ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
@@ -180,7 +170,6 @@ heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(14,30]"] = 
 heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(30,45]"] = "Medium"
 heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(45,80]"] = "High"
 heart$ejection_fraction_classes = as.factor(heart$ejection_fraction_classes)
-
 ft1 = ftable(heart$sex, heart$ejection_fraction_classes, heart$DEATH_EVENT)
 ft1
 chisq = chisq.test(ft1)
@@ -196,23 +185,30 @@ ggplot(heart, aes(x = smoking, fill = sex))+
 
 ```{r Gini index}
 #se c'è tempo
-
 ```
+
+
+In order to understand which variables might be related a paired scatterplot is represented.
+
+Apparently, there is not any relation between variables. 
+Let's get a look at the numbers to check if this is true. 
 
 ```{r Variance covariance matrix}
 as.data.frame(cov(heart[,c(1,3,5,7,8,9)]))
 ```
- 
+
+The correlationplot shows the absence of strong correlations between the variables taken into account. 
+
 In order to understand which variables might be related a paired scatterplot is represented.
 
-```{r Paired Scatterplot}
+```{r Paired Scatterplots}
 ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
-  
 ```
 
 Scatters are colored according to "sex" variable. Apparently, there is not any relation between variables. 
 Let's get a look at the numbers to check if this is true. 
+
 
 ```{r Correlation matrix}
 corrplot(cor(heart[,c(1,3,5,7,8,9)]), method = 'color', addCoef.col = '#4d4c4b', order ='AOE', diag = FALSE, cl.cex = 0.5, tl.col='Black', tl.cex=0.8, tl.srt=70 ,)
@@ -232,7 +228,6 @@ ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
 
 
 ```{r Parameters}
-
 reg <-lm(formula = heart$serum_creatinine ~ heart$serum_sodium)
 as.data.frame(reg$coefficients)
 ```
@@ -242,6 +237,5 @@ While the goodness of fitness is equal to:
 ```{r Goodness of fitness}
 cor(heart$serum_creatinine, heart$serum_sodium)^2
 ```
+
 R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
-
-
