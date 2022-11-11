@@ -64,6 +64,18 @@ ggplot(heart, aes(x = age)) +
   labs(x = 'Age', y='Density')+
   scale_x_continuous(breaks= c(35, 45,55,65,75,85,95))
 ```
+```{r Central Tendency}
+ggplot(heart, aes(x = creatinine_phosphokinase, color = sex))+
+  stat_ecdf()+
+  labs(x = 'CPK', y='F(CPK)')
+
+sex <- c('Male','Female')
+mean <- c(mean(filter(heart, sex == 'Male')$creatinine_phosphokinase),mean(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+median <- c(median(filter(heart, sex == 'Male')$creatinine_phosphokinase),median(filter(heart, sex == 'Female')$creatinine_phosphokinase)
+)
+
+data.frame(sex, mean, median)
+```
 
 ```{r}
 ggplot(heart, aes(x = creatinine_phosphokinase)) +
