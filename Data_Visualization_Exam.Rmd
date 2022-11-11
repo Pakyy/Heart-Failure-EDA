@@ -173,6 +173,7 @@ heart$ejection_fraction_classes = as.factor(heart$ejection_fraction_classes)
 ft1 = ftable(heart$sex, heart$ejection_fraction_classes, heart$DEATH_EVENT)
 ft1
 chisq = chisq.test(ft1)
+chisq.test(ft1)
 chisq$residuals
 ```
 
