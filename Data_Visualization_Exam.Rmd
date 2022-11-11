@@ -237,5 +237,4 @@ While the goodness of fitness is equal to:
 ```{r Goodness of fitness}
 cor(heart$serum_creatinine, heart$serum_sodium)^2
 ```
-
 R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
