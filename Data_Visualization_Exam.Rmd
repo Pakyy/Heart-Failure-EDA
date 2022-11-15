@@ -40,6 +40,7 @@ library(corrplot)
 heart <- read.csv("~/Downloads/heart_failure_clinical_records_dataset.csv")
 glimpse(heart)
 ```
+First of all, we decided to transform our categorical data into factors since they were recognized as integers.
 
 ```{r Editing column type}
 for (i in c(2,4,6,13)){
@@ -53,6 +54,7 @@ heart$sex = as.factor(heart$sex)
 heart$smoking = as.factor(heart$smoking)
 glimpse(heart)
 ```
+
 
 ```{r}
 data.frame(unclass(summary(heart[,-c(2,4,6,10,11,13)])), check.names = FALSE, stringsAsFactors = FALSE)
