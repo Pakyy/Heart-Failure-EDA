@@ -197,6 +197,8 @@ chisq.test(ft1)
 chisq$residuals
 ```
 
+Chi-square test is that it tests the null hypothesis that the variables are independent. The test compares the observed data to a model that distributes the data according to the expectation that the variables are independent. Wherever the observed data doesn't fit the model, the likelihood that the variables are dependent becomes stronger, thus proving the null hypothesis incorrect!
+
 ```{r Qualitative Variables - Barplot}
   
 ggplot(heart, aes(x = smoking, fill = sex))+
