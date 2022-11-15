@@ -275,6 +275,7 @@ As expected, when the sample dimension is reduced, the confidence interval incre
 # Anova
 
 ```{r}
+attach(heart)
 plot(creatinine_phosphokinase~ejection_fraction_classes)
 plot.design(creatinine_phosphokinase~ejection_fraction_classes)
 plot.design(creatinine_phosphokinase~ejection_fraction_classes, fun = median)
