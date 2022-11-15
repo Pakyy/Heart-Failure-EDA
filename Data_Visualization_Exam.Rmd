@@ -306,3 +306,4 @@ qqline(creatinine_phosphokinase[ejection_fraction_classes=="High"])
 ```{r}
 oneway.test(creatinine_phosphokinase~ejection_fraction_classes, var.equal = TRUE)
 ```
+Since the p-value is greater than 0.05 we fail to reject the null hypothesis and so we can say that the means are equal.
