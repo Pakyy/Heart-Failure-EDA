@@ -155,7 +155,7 @@ grid.arrange(bp9,bp10,bp11,bp12, nrow = 2)
 
 From the boxplots it can be deduced that people who smoke and have diabetes generally have lower values for the ejection fraction. This is generally considered a possible cause for Cardiomyopathy.
 
-## 3rd and 4th moment
+## Third and fourth moment
 
 ```{r 3rd and 4th moment }
 heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
@@ -264,7 +264,7 @@ Chi-square test is that it tests the null hypothesis that the variables are inde
 # INFERENCE
 
 
-## Confidence Intervals
+## Confidence Intervals and hypothesis testing
 
 Let's take into account the CPK concentration variable. We want to know, based on the observations in the sample, what is the confidence interval containing the mean of the population.
 We are going to perform a t-test because the variance of the population is not known.
