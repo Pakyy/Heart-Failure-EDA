@@ -1,5 +1,5 @@
 ---
-title: "Fundamentals of Statistics and Probabiltiy Project"
+title: "Foundations of Probability and Statistics"
 author: "Pasquale Gravante & Antonio Mastroianni"
 date: "2022-10-24"
 output: 
