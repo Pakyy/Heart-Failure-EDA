@@ -184,7 +184,7 @@ ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuou
 
 ## Chi-squared
 
-```{r Contingency table and chi-square}
+```{r Contingency table and chi-square, message=FALSE, warning=FALSE}
 classes = cut(heart$ejection_fraction, c(14, 30, 60, 80))
 classes = as.character(classes)
 heart$ejection_fraction_classes = classes
