@@ -1,16 +1,17 @@
 ---
-title: "Fundamentals of Statistics and Probability Project"
+title: "Foundations of Probability and Statistics"
 author: "Pasquale Gravante & Antonio Mastroianni"
 date: "2022-10-24"
 output: 
   html_document:
     df_print: paged
     code_folding: hide
+    toc: true
+    number_sections: true
 ---
-
+# Description of the data
 The dataset consists of data regarding a sample consisting of  **299 patients** possibly affected by cardiovascular deseases.
 The variables taken into account for the analysis are:
-
 *   **Age**: integer representing the age of the patient
 *   **Sex**: sex of the patient **(Boolean)**
 *   **Anaemia**: decrease of red blood cells or hemoglobin **(Boolean)**
@@ -24,7 +25,6 @@ The variables taken into account for the analysis are:
 *   **Smoking**: If the patient smokes or not **(Boolean)**
 *   **Time**: Follow-up period **(days)**
 *   **Death_event**: If the patient died for a cardiac arrest or not **(Boolean)**
-
 ```{r Libraries, echo=TRUE, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(dplyr)
@@ -35,14 +35,12 @@ library(GGally)
 library(moments)
 library(corrplot)
 ```
-
+First of all, we decided to transform our categorical data into factors since they were recognized as integers.
 ```{r}
-heart <- read.csv("C:/Users/masta/OneDrive/Desktop/Università/Data Science/Foundations of Probability and Statistics/Progetto/heart_failure_clinical_records_dataset.csv")
+heart <- read.csv("~/Downloads/heart_failure_clinical_records_dataset.csv")
 glimpse(heart)
 ```
-
 The table shows the dataframe after transformation.
-
 ```{r Editing column type}
 for (i in c(2,4,6,13)){
   heart[,i] = as.factor(heart[,i])
@@ -55,19 +53,13 @@ heart$sex = as.factor(heart$sex)
 heart$smoking = as.factor(heart$smoking)
 glimpse(heart)
 ```
-
 # EDA
-
 The table represents all indices for each quantitative variable.
-
 ```{r Data summary}
 data.frame(unclass(summary(heart[,-c(2,4,6,10,11,13)])), check.names = FALSE, stringsAsFactors = FALSE)
 ```
-
 ## Measures of central tendency
-
 The age histogram consists of 6 intervals, each of which has length 10. Density is represented on the y axis. Mean is represented by a red line.
-
 ```{r Age histogram}
 ggplot(heart, aes(x = age)) +
   geom_histogram(aes(y = ..density..), binwidth = 10, fill = 'cyan3', color = 'white') +
@@ -76,9 +68,7 @@ ggplot(heart, aes(x = age)) +
   labs(x = 'Age', y='Density')+
   scale_x_continuous(breaks= c(35, 45,55,65,75,85,95))
 ```
-
 A comparison is made for the variable "creatinine_phosphokinase", which represents the concentration level for the enzyme CPK in the blood for male and females.
-
 ```{r Central Tendency}
 ggplot(heart, aes(x = creatinine_phosphokinase, color = sex))+
   stat_ecdf()+
@@ -91,9 +81,7 @@ data.frame(sex, mean, median)
 ```
 CPK concentration is higher in male with respect to females. 
 This is proven by the values for the means in the table above.
-
 The following histogram shows the impact of outliers for the mean (red). The meadian(purple) instead is not affected by the presence of outliers. 
-
 ```{r}
 ggplot(heart, aes(x = creatinine_phosphokinase)) +
   geom_histogram(aes(y = ..density..), binwidth = 100, fill = 'cyan3', color = 'white') +
@@ -102,11 +90,8 @@ ggplot(heart, aes(x = creatinine_phosphokinase)) +
   geom_vline(xintercept = median(heart$creatinine_phosphokinase), color = 'purple') +
   labs(x = 'CPK', y='Density')
 ```
-
 ## Variability measures
-
 The following table shows the values for variance, standard deviation, range of variation, interquartile range and median absolute deviation of the CPK concentration for males and females.
-
 ```{r Variability measures, message = FALSE, warning = FALSE}
 attach(heart)
 var <- c(var(filter(heart, sex == 'Male')$creatinine_phosphokinase),
@@ -127,11 +112,8 @@ mad <- c(MAD(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 MAD(filter(heart, sex == 'Female')$creatinine_phosphokinase))
 data.frame(sex, var, sd, RoV, iq, mad)
 ```
-
 ## Visualizations
-
 The following boxplots show the variability of Serum-Creatinine, CPK, platelets concentration and ejetion fraction according to a categorical variable.
-
 ```{r Boxplots fumatori}
 bp5 = ggplot(heart, aes(x = smoking, y = serum_creatinine, fill = smoking)) + geom_boxplot() 
 bp6 = ggplot(heart, aes(x = smoking, y = creatinine_phosphokinase, fill = smoking)) + geom_boxplot() 
@@ -139,7 +121,6 @@ bp7 = ggplot(heart, aes(x = smoking, y = platelets, fill = smoking)) + geom_boxp
 bp8 = ggplot(heart, aes(x = smoking, y = ejection_fraction, fill = smoking)) + geom_boxplot() 
 grid.arrange(bp5,bp6,bp7,bp8, nrow = 2)
 ```
-
 ```{r Boxplots diabetici}
 bp9 = ggplot(heart, aes(x = diabetes, y = serum_creatinine, fill = diabetes)) + geom_boxplot() 
 bp10 = ggplot(heart, aes(x = diabetes, y = creatinine_phosphokinase, fill = diabetes)) + geom_boxplot() 
@@ -147,9 +128,7 @@ bp11 = ggplot(heart, aes(x = diabetes, y = platelets, fill = diabetes)) + geom_b
 bp12 = ggplot(heart, aes(x = diabetes, y = ejection_fraction, fill = diabetes)) + geom_boxplot()
 grid.arrange(bp9,bp10,bp11,bp12, nrow = 2)
 ```
-
 From the boxplots it can be deduced that people who smoke and have diabetes generally have lower values for the ejection fraction. This is generally considered a possible cause for Cardiomyopathy.
-
 ```{r 3rd and 4th moment }
 heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
 mean(heart$cpk_standard)
@@ -169,67 +148,12 @@ skew <- c(skewness(filter(heart, sex == 'Male')$creatinine_phosphokinase), skewn
 kurt <- c(kurtosis(filter(heart, sex == 'Male')$creatinine_phosphokinase), kurtosis(filter(heart, sex == 'Female')$creatinine_phosphokinase))
 data.frame(sex, skew, kurt)
 ```
-
-
-## Dependency
-
 In order to understand which variables might be related a paired scatterplot is represented.
-
 ```{r Paired Scatterplot}
 ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
 ```
-
-Scatters are colored according to "sex" variable. Apparently, there is not any relation between variables. 
-Let's get a look at the numbers to check if this is true. 
-
-In order to understand which variables might be related a paired scatterplot is represented.
-
-Apparently, there is not any relation between variables. 
-Let's get a look at the numbers to check if this is true. 
-
-```{r Variance covariance matrix}
-as.data.frame(cov(heart[,c(1,3,5,7,8,9)]))
-```
-
-The correlationplot shows the absence of strong correlations between the variables taken into account. 
-
-
-```{r Correlation matrix}
-corrplot(cor(heart[,c(1,3,5,7,8,9)]), method = 'color', addCoef.col = '#4d4c4b', order ='AOE', diag = FALSE, cl.cex = 0.5, tl.col='Black', tl.cex=0.8, tl.srt=70 ,)
-```
-
-The correlationplot shows the absence of strong correlations between the variables taken into account.
-THe highest(negative) correlation value is between 'serum_creatinine' and 'serum_sodium'.
-
-### Linear Regression
-
-Let's give a look at the regression line for these two variables. 
-
-
-```{r Linear Regression, message=FALSE, warning=FALSE}
-ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
-  geom_point()+
-  geom_smooth(method="lm", se = FALSE, color = 'deeppink3')
-```
-
-
-```{r Parameters}
-reg <-lm(formula = heart$serum_creatinine ~ heart$serum_sodium)
-as.data.frame(reg$coefficients)
-```
-
-### R-squared
-
-While the goodness of fitness is equal to:
-```{r Goodness of fitness}
-cor(heart$serum_creatinine, heart$serum_sodium)^2
-```
-R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
-
-
 ## Chi-squared
-
 ```{r Contingency table and chi-square}
 classes = cut(heart$ejection_fraction, c(14, 30, 60, 80))
 classes = as.character(classes)
@@ -244,51 +168,71 @@ chisq = chisq.test(ft1)
 chisq.test(ft1)
 chisq$residuals
 ```
-
 Chi-square test is that it tests the null hypothesis that the variables are independent. The test compares the observed data to a model that distributes the data according to the expectation that the variables are independent. Wherever the observed data doesn't fit the model, the likelihood that the variables are dependent becomes stronger, thus proving the null hypothesis incorrect!
-
 ```{r Qualitative Variables - Barplot}
   
 ggplot(heart, aes(x = smoking, fill = sex))+
   geom_bar()+
   labs(x = 'Smoking', y='Frequency', title = 'Total of smoking males and females')
 ```
-
-
-
-
+In order to understand which variables might be related a paired scatterplot is represented.
+Apparently, there is not any relation between variables. 
+Let's get a look at the numbers to check if this is true. 
+```{r Variance covariance matrix}
+as.data.frame(cov(heart[,c(1,3,5,7,8,9)]))
+```
+The correlationplot shows the absence of strong correlations between the variables taken into account. 
+In order to understand which variables might be related a paired scatterplot is represented.
+```{r Paired Scatterplots}
+ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
+```
+Scatters are colored according to "sex" variable. Apparently, there is not any relation between variables. 
+Let's get a look at the numbers to check if this is true. 
+```{r Correlation matrix}
+corrplot(cor(heart[,c(1,3,5,7,8,9)]), method = 'color', addCoef.col = '#4d4c4b', order ='AOE', diag = FALSE, cl.cex = 0.5, tl.col='Black', tl.cex=0.8, tl.srt=70 ,)
+```
+The correlationplot shows the absence of strong correlations between the variables taken into account.
+THe highest(negative) correlation value is between 'serum_creatinine' and 'serum_sodium'.
+# Linear Regression
+Let's give a look at the regression line for these two variables. 
+```{r Linear Regression, message=FALSE, warning=FALSE}
+ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
+  geom_point()+
+  geom_smooth(method="lm", se = FALSE, color = 'deeppink3')
+```
+```{r Parameters}
+reg <-lm(formula = heart$serum_creatinine ~ heart$serum_sodium)
+as.data.frame(reg$coefficients)
+```
+## R-squared
+While the goodness of fitness is equal to:
+```{r Goodness of fitness}
+cor(heart$serum_creatinine, heart$serum_sodium)^2
+```
+R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
 # Inference
-
 Let's take into account the CPK concentration variable. We want to know, based on the observations in the sample, what is the confidence interval containing the mean of the population.
-
 We are going to perform a t-test because the variance of the population is not known.
 We are going to consider a confidence level of 0.99
-
 ```{r Confidence Intervals}
 t.test(heart$creatinine_phosphokinase, alternative = "two.sided", conf.level = 0.99)
 ```
-
 The mean of the population resides in the interval [436.37; 727.30] with a confidence level of 0.99.
-
 Let's assume to reduce our confidence level to 0.95.
-
 ```{r}
 t.test(heart$creatinine_phosphokinase, alternative = "two.sided", conf.level = 0.95)
 ```
-
 As expected, the confidence interval narrows as the confidence level decreases.
-
-
 Let's also assume the case in which the analyzed sample has a smaller dimension.
 In order to do that, we are going to sample without replacement our data and get 150 observation.
-
 ```{r Bootstrap Confidence interval}
 h <- sample(heart$creatinine_phosphokinase, 150, replace = FALSE)
 t.test(h, alternative = "two.sided", conf.level = 0.95)
 ```
 As expected, when the sample dimension is reduced, the confidence interval increases.
 
-# Anova
+# ANOVA
 
 ```{r message=FALSE, warning=FALSE}
 attach(heart)
@@ -296,7 +240,6 @@ plot(creatinine_phosphokinase~ejection_fraction_classes)
 plot.design(creatinine_phosphokinase~ejection_fraction_classes)
 plot.design(creatinine_phosphokinase~ejection_fraction_classes, fun = median)
 ```
-
 ```{r}
 par(mfrow=c(2,2))
 qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="Low"])
@@ -306,7 +249,6 @@ qqline(creatinine_phosphokinase[ejection_fraction_classes=="Medium"])
 qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="High"])
 qqline(creatinine_phosphokinase[ejection_fraction_classes=="High"])
 ```
-
 ```{r}
 oneway.test(creatinine_phosphokinase~ejection_fraction_classes, var.equal = TRUE)
 ```
