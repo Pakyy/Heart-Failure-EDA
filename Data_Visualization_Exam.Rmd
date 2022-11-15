@@ -29,23 +29,6 @@ The variables taken into account for the analysis are:
 *   **Time**: Follow-up period **(days)**
 *   **Death_event**: If the patient died for a cardiac arrest or not **(Boolean)**
 
-```{r Libraries, echo=TRUE, message=FALSE, warning=FALSE}
-library(ggplot2)
-library(dplyr)
-library(tidyverse)
-library(tidyr)
-library(gridExtra)
-library(GGally)
-library(moments)
-library(corrplot)
-```
-First of all, we decided to transform our categorical data into factors since they were recognized as integers.
-
-```{r}
-heart <- read.csv("~/Downloads/heart_failure_clinical_records_dataset.csv")
-glimpse(heart)
-```
-
 The table shows the dataframe after transformation.
 
 ```{r Editing column type}
@@ -175,12 +158,63 @@ kurt <- c(kurtosis(filter(heart, sex == 'Male')$creatinine_phosphokinase), kurto
 data.frame(sex, skew, kurt)
 ```
 
+
+## Dependency
+
 In order to understand which variables might be related a paired scatterplot is represented.
 
 ```{r Paired Scatterplot}
 ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
 ```
+
+Scatters are colored according to "sex" variable. Apparently, there is not any relation between variables. 
+Let's get a look at the numbers to check if this is true. 
+
+In order to understand which variables might be related a paired scatterplot is represented.
+
+Apparently, there is not any relation between variables. 
+Let's get a look at the numbers to check if this is true. 
+
+```{r Variance covariance matrix}
+as.data.frame(cov(heart[,c(1,3,5,7,8,9)]))
+```
+
+The correlationplot shows the absence of strong correlations between the variables taken into account. 
+
+
+```{r Correlation matrix}
+corrplot(cor(heart[,c(1,3,5,7,8,9)]), method = 'color', addCoef.col = '#4d4c4b', order ='AOE', diag = FALSE, cl.cex = 0.5, tl.col='Black', tl.cex=0.8, tl.srt=70 ,)
+```
+
+The correlationplot shows the absence of strong correlations between the variables taken into account.
+THe highest(negative) correlation value is between 'serum_creatinine' and 'serum_sodium'.
+
+### Linear Regression
+
+Let's give a look at the regression line for these two variables. 
+
+
+```{r Linear Regression, message=FALSE, warning=FALSE}
+ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
+  geom_point()+
+  geom_smooth(method="lm", se = FALSE, color = 'deeppink3')
+```
+
+
+```{r Parameters}
+reg <-lm(formula = heart$serum_creatinine ~ heart$serum_sodium)
+as.data.frame(reg$coefficients)
+```
+
+### R-squared
+
+While the goodness of fitness is equal to:
+```{r Goodness of fitness}
+cor(heart$serum_creatinine, heart$serum_sodium)^2
+```
+R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
+
 
 ## Chi-squared
 
@@ -208,59 +242,8 @@ ggplot(heart, aes(x = smoking, fill = sex))+
   labs(x = 'Smoking', y='Frequency', title = 'Total of smoking males and females')
 ```
 
-In order to understand which variables might be related a paired scatterplot is represented.
-
-Apparently, there is not any relation between variables. 
-Let's get a look at the numbers to check if this is true. 
-
-```{r Variance covariance matrix}
-as.data.frame(cov(heart[,c(1,3,5,7,8,9)]))
-```
-
-The correlationplot shows the absence of strong correlations between the variables taken into account. 
-
-In order to understand which variables might be related a paired scatterplot is represented.
-
-```{r Paired Scatterplots}
-ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
-```
-
-Scatters are colored according to "sex" variable. Apparently, there is not any relation between variables. 
-Let's get a look at the numbers to check if this is true. 
 
 
-```{r Correlation matrix}
-corrplot(cor(heart[,c(1,3,5,7,8,9)]), method = 'color', addCoef.col = '#4d4c4b', order ='AOE', diag = FALSE, cl.cex = 0.5, tl.col='Black', tl.cex=0.8, tl.srt=70 ,)
-```
-
-The correlationplot shows the absence of strong correlations between the variables taken into account.
-THe highest(negative) correlation value is between 'serum_creatinine' and 'serum_sodium'.
-
-# Linear Regression
-
-Let's give a look at the regression line for these two variables. 
-
-
-```{r Linear Regression, message=FALSE, warning=FALSE}
-ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
-  geom_point()+
-  geom_smooth(method="lm", se = FALSE, color = 'deeppink3')
-```
-
-
-```{r Parameters}
-reg <-lm(formula = heart$serum_creatinine ~ heart$serum_sodium)
-as.data.frame(reg$coefficients)
-```
-
-## R-squared
-
-While the goodness of fitness is equal to:
-```{r Goodness of fitness}
-cor(heart$serum_creatinine, heart$serum_sodium)^2
-```
-R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
 
 # Inference
 
@@ -279,7 +262,6 @@ Let's assume to reduce our confidence level to 0.95.
 
 ```{r}
 t.test(heart$creatinine_phosphokinase, alternative = "two.sided", conf.level = 0.95)
-
 ```
 
 As expected, the confidence interval narrows as the confidence level decreases.
@@ -291,12 +273,10 @@ In order to do that, we are going to sample without replacement our data and get
 ```{r Bootstrap Confidence interval}
 h <- sample(heart$creatinine_phosphokinase, 150, replace = FALSE)
 t.test(h, alternative = "two.sided", conf.level = 0.95)
-
-
 ```
 As expected, when the sample dimension is reduced, the confidence interval increases.
 
-# ANOVA
+# Anova
 
 ```{r message=FALSE, warning=FALSE}
 attach(heart)
