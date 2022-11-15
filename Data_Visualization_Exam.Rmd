@@ -271,3 +271,25 @@ t.test(h, alternative = "two.sided", conf.level = 0.95)
 
 ```
 As expected, when the sample dimension is reduced, the confidence interval increases.
+
+# Anova
+
+```{r}
+plot(creatinine_phosphokinase~ejection_fraction_classes)
+plot.design(creatinine_phosphokinase~ejection_fraction_classes)
+plot.design(creatinine_phosphokinase~ejection_fraction_classes, fun = median)
+```
+
+```{r}
+par(mfrow=c(2,2))
+qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="Low"])
+qqline(creatinine_phosphokinase[ejection_fraction_classes=="Low"])
+qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="Medium"])
+qqline(creatinine_phosphokinase[ejection_fraction_classes=="Medium"])
+qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="High"])
+qqline(creatinine_phosphokinase[ejection_fraction_classes=="High"])
+```
+
+```{r}
+oneway.test(creatinine_phosphokinase~ejection_fraction_classes, var.equal = TRUE)
+```
