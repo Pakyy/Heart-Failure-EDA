@@ -139,12 +139,12 @@ heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
 mean(heart$cpk_standard)
 d1 <- ggplot(filter(heart, sex == 'Male'), aes(x= cpk_standard, color = sex ))+
   geom_density(color = '#6dca7c')+
-  labs(x='CPK')+
+  labs(x='CPK', title = 'CPK concentration for males')+
   theme_bw()+
     scale_x_continuous(breaks= c(-1,0,1,2,3,4,5,6,7))
 d2 <- ggplot(filter(heart, sex == 'Female'), aes(x= cpk_standard ))+
   geom_density(color = '#933183')+
-  labs(x='CPK')+
+  labs(x='CPK', title = 'CPK concentration for females')+
   theme_bw()+
   scale_x_continuous(breaks= c(-1,0,1,2,3,4))
 grid.arrange(d1, d2)
