@@ -240,7 +240,7 @@ THe highest(negative) correlation value is between 'serum_creatinine' and 'serum
 Let's give a look at the regression line for these two variables. 
 
 
-```{r Linear Regression}
+```{r Linear Regression, message=FALSE, warning=FALSE}
 ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
   geom_point()+
   geom_smooth(method="lm", se = FALSE, color = 'deeppink3')
@@ -296,7 +296,7 @@ As expected, when the sample dimension is reduced, the confidence interval incre
 
 # Anova
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 attach(heart)
 plot(creatinine_phosphokinase~ejection_fraction_classes)
 plot.design(creatinine_phosphokinase~ejection_fraction_classes)
