@@ -14,6 +14,7 @@ output:
 
 The dataset consists of data regarding a sample consisting of  **299 patients** possibly affected by cardiovascular deseases.
 The variables taken into account for the analysis are:
+
 *   **Age**: integer representing the age of the patient
 *   **Sex**: sex of the patient **(Boolean)**
 *   **Anaemia**: decrease of red blood cells or hemoglobin **(Boolean)**
