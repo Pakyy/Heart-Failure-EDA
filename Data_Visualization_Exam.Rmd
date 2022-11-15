@@ -1,16 +1,12 @@
 ---
-title: "Foundations of Probability and Statistics"
+title: "Fundamentals of Statistics and Probability Project"
 author: "Pasquale Gravante & Antonio Mastroianni"
 date: "2022-10-24"
 output: 
   html_document:
     df_print: paged
     code_folding: hide
-    toc: true
-    number_sections: true
 ---
-
-# Description of the data
 
 The dataset consists of data regarding a sample consisting of  **299 patients** possibly affected by cardiovascular deseases.
 The variables taken into account for the analysis are:
@@ -28,6 +24,22 @@ The variables taken into account for the analysis are:
 *   **Smoking**: If the patient smokes or not **(Boolean)**
 *   **Time**: Follow-up period **(days)**
 *   **Death_event**: If the patient died for a cardiac arrest or not **(Boolean)**
+
+```{r Libraries, echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(gridExtra)
+library(GGally)
+library(moments)
+library(corrplot)
+```
+
+```{r}
+heart <- read.csv("C:/Users/masta/OneDrive/Desktop/Università/Data Science/Foundations of Probability and Statistics/Progetto/heart_failure_clinical_records_dataset.csv")
+glimpse(heart)
+```
 
 The table shows the dataframe after transformation.
 
