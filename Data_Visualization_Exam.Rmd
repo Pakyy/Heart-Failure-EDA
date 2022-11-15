@@ -10,6 +10,8 @@ output:
     number_sections: true
 ---
 
+# Description of the data
+
 The dataset consists of data regarding a sample consisting of  **299 patients** possibly affected by cardiovascular deseases.
 The variables taken into account for the analysis are:
 
