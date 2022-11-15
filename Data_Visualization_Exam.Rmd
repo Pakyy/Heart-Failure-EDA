@@ -1,5 +1,5 @@
 ---
-title: "Data Visualization Exam"
+title: "Fundamentals of Statistics and Probabiltiy Project"
 author: "Pasquale Gravante & Antonio Mastroianni"
 date: "2022-10-24"
 output: 
@@ -35,12 +35,14 @@ library(GGally)
 library(moments)
 library(corrplot)
 ```
+First of all, we decided to transform our categorical data into factors since they were recognized as integers.
 
 ```{r}
 heart <- read.csv("~/Downloads/heart_failure_clinical_records_dataset.csv")
 glimpse(heart)
 ```
-First of all, we decided to transform our categorical data into factors since they were recognized as integers.
+
+The table shows the dataframe after transformation.
 
 ```{r Editing column type}
 for (i in c(2,4,6,13)){
@@ -55,10 +57,17 @@ heart$smoking = as.factor(heart$smoking)
 glimpse(heart)
 ```
 
+## EDA
 
-```{r}
+The table represents all indices for each quantitative variable.
+
+```{r Data summary}
 data.frame(unclass(summary(heart[,-c(2,4,6,10,11,13)])), check.names = FALSE, stringsAsFactors = FALSE)
 ```
+
+### Measures of central tendency
+
+The age histogram consists of 6 intervals, each of which has length 10. Density is represented on the y axis. Mean is represented by a red line.
 
 ```{r Age histogram}
 ggplot(heart, aes(x = age)) +
@@ -68,6 +77,8 @@ ggplot(heart, aes(x = age)) +
   labs(x = 'Age', y='Density')+
   scale_x_continuous(breaks= c(35, 45,55,65,75,85,95))
 ```
+
+A comparison is made for the variable "creatinine_phosphokinase", which represents the concentration level for the enzyme CPK in the blood for male and females.
 
 ```{r Central Tendency}
 ggplot(heart, aes(x = creatinine_phosphokinase, color = sex))+
@@ -79,6 +90,10 @@ median <- c(median(filter(heart, sex == 'Male')$creatinine_phosphokinase),median
 )
 data.frame(sex, mean, median)
 ```
+CPK concentration is higher in male with respect to females. 
+This is proven by the values for the means in the upper table.
+
+The following histogram shows the impact of outliers for the mean (red). The meadian(purple) instead is not affected by the presence of outliers. 
 
 ```{r}
 ggplot(heart, aes(x = creatinine_phosphokinase)) +
@@ -89,13 +104,17 @@ ggplot(heart, aes(x = creatinine_phosphokinase)) +
   labs(x = 'CPK', y='Density')
 ```
 
-```{r Variability measures}
+### Variability measures
+
+The following table shows the values for variance, standard deviation, range of variation, interquartile range and median absolute deviation of the CPK concentration for males and females.
+
+```{r Variability measures, message = FALSE, warning = FALSE}
 attach(heart)
 var <- c(var(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 var(filter(heart, sex == 'Female')$creatinine_phosphokinase))
 sd <- c(sd(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 sd(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-diff <- c(diff(range(filter(heart, sex == 'Male')$creatinine_phosphokinase)),
+RoV <- c(diff(range(filter(heart, sex == 'Male')$creatinine_phosphokinase)),
 diff(range(filter(heart, sex == 'Female')$creatinine_phosphokinase)))
 interquartile_range <- function(x){
 diff(quantile(x, probs = c(0.25, 0.75)))
@@ -107,18 +126,10 @@ median(abs(x - median(x)))
 }
 mad <- c(MAD(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 MAD(filter(heart, sex == 'Female')$creatinine_phosphokinase))
-data.frame(sex, var, sd, diff, iq, mad)
+data.frame(sex, var, sd, RoV, iq, mad)
 ```
 
-
-```{r Boxplots in base al sesso}
-options(scipen = 999)
-bp1 = ggplot(heart, aes(x = sex, y = serum_creatinine, fill = sex)) + geom_boxplot() 
-bp2 = ggplot(heart, aes(x = sex, y = creatinine_phosphokinase, fill = sex)) + geom_boxplot() 
-bp3 = ggplot(heart, aes(x = sex, y = platelets, fill = sex)) + geom_boxplot() 
-bp4 = ggplot(heart, aes(x = sex, y = ejection_fraction, fill = sex)) + geom_boxplot() 
-grid.arrange(bp1,bp2,bp3,bp4, nrow = 2)
-```
+The following boxplots show the variability of Serum-Creatinine, CPK, platelets concentration and ejetion fraction according to a categorical variable.
 
 ```{r Boxplots fumatori}
 bp5 = ggplot(heart, aes(x = smoking, y = serum_creatinine, fill = smoking)) + geom_boxplot() 
@@ -135,6 +146,8 @@ bp11 = ggplot(heart, aes(x = diabetes, y = platelets, fill = diabetes)) + geom_b
 bp12 = ggplot(heart, aes(x = diabetes, y = ejection_fraction, fill = diabetes)) + geom_boxplot()
 grid.arrange(bp9,bp10,bp11,bp12, nrow = 2)
 ```
+
+From the boxplots it can be deduced that people who smoke and have diabetes generally have lower values for the ejection fraction. This is generally considered a possible cause for Cardiomyopathy.
 
 ```{r 3rd and 4th moment }
 heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
