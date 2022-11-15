@@ -91,7 +91,7 @@ median <- c(median(filter(heart, sex == 'Male')$creatinine_phosphokinase),median
 data.frame(sex, mean, median)
 ```
 CPK concentration is higher in male with respect to females. 
-This is proven by the values for the means in the upper table.
+This is proven by the values for the means in the table above.
 
 The following histogram shows the impact of outliers for the mean (red). The meadian(purple) instead is not affected by the presence of outliers. 
 
@@ -178,12 +178,12 @@ ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuou
 
 
 ```{r Contingency table and chi-square}
-classes = cut(heart$ejection_fraction, c(14, 30, 45, 80))
+classes = cut(heart$ejection_fraction, c(14, 30, 60, 80))
 classes = as.character(classes)
 heart$ejection_fraction_classes = classes
 heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(14,30]"] = "Low"
-heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(30,45]"] = "Medium"
-heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(45,80]"] = "High"
+heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(30,60]"] = "Medium"
+heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(60,80]"] = "High"
 heart$ejection_fraction_classes = as.factor(heart$ejection_fraction_classes)
 ft1 = ftable(heart$sex, heart$ejection_fraction_classes, heart$DEATH_EVENT)
 ft1
@@ -192,17 +192,12 @@ chisq.test(ft1)
 chisq$residuals
 ```
 
-```{r QUalitative Variables - Barplot}
+```{r Qualitative Variables - Barplot}
   
 ggplot(heart, aes(x = smoking, fill = sex))+
   geom_bar()+
   labs(x = 'Smoking', y='Frequency', title = 'Total of smoking males and females')
 ```
-
-```{r Gini index}
-#se c'è tempo
-```
-
 
 In order to understand which variables might be related a paired scatterplot is represented.
 
