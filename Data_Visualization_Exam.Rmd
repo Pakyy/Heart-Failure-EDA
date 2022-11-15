@@ -296,7 +296,7 @@ t.test(h, alternative = "two.sided", conf.level = 0.95)
 ```
 As expected, when the sample dimension is reduced, the confidence interval increases.
 
-# Anova
+# ANOVA
 
 ```{r message=FALSE, warning=FALSE}
 attach(heart)
