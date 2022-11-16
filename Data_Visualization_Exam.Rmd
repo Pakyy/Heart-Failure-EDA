@@ -38,7 +38,6 @@ library(gridExtra)
 library(GGally)
 library(moments)
 library(corrplot)
-library(moderndive)
 ```
 
 First of all, we decided to transform our categorical data into factors since they were recognized as integers.
@@ -217,7 +216,7 @@ THe highest(negative) correlation value is between 'serum_creatinine' and 'serum
 
 ## Linear Regression
 
-Let's give a look at the regression line for these two variables. 
+Let's give a look at the regression line for these two variables.
 
 ```{r Linear Regression, message=FALSE, warning=FALSE}
 ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
@@ -225,10 +224,17 @@ ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
   geom_smooth(method="lm", se = FALSE, color = 'deeppink3')
 ```
 
+As expected, there is negative relation between Serum Creatinine and Serum Sodium concentration variables. As the latter decreases, the first increases.
+
+
 ```{r Parameters}
 reg <-lm(formula = heart$serum_creatinine ~ heart$serum_sodium)
 as.data.frame(reg$coefficients)
 ```
+In particular, when the level of Serum Creatinine is, in theory, equal to 0, the value for Serum Sodium is equal to 137.75.
+The unitary increase of Serum Sodium implies the decrease in Serum Creatinine of 0.80.
+
+
 
 ## R-squared
 
@@ -239,6 +245,7 @@ cor(heart$serum_creatinine, heart$serum_sodium)^2
 ```
 
 R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
+Hence, the model doesn't fit the data.
 
 
 
@@ -263,7 +270,7 @@ ft1
 Null hypothesis: Rows and Columns are independent
 Alternative hypothesis: Column variables depend on rows variables.
 
-```{r Test}
+```{r Test, message=FALSE, warning=FALSE}
 chisq = chisq.test(ft1)
 chisq.test(ft1)
 ```
@@ -308,25 +315,45 @@ As expected, when the sample dimension is reduced, the confidence interval incre
 
 ## ANOVA
 
+The aim is to compare mean for the Serum Sodium variable according to the three levels of Ejection Fraction(Low, Medium, High).
+The levels for Ejection Fraction were created according to a trustable medicine website ([link] (https://www.medicalnewstoday.com/articles/ejection-fraction#results)). 
+
 ```{r message=FALSE, warning=FALSE}
 attach(heart)
-plot(creatinine_phosphokinase~ejection_fraction_classes)
-plot.design(creatinine_phosphokinase~ejection_fraction_classes)
-plot.design(creatinine_phosphokinase~ejection_fraction_classes, fun = median)
+plot(serum_sodium~ejection_fraction_classes)
+plot.design(serum_sodium~ejection_fraction_classes)
+plot.design(serum_sodium~ejection_fraction_classes, fun = median)
 ```
+
+The boxplot shows different distributions for the target variable levels. This is caused by the different interval range of each class.
+However, the median for each of the three groups looks similar. Additionally, it is possible to see that Ejection Fraction values are tendentially proportional to the levels of the Serum Sodium levels.
 
 ```{r}
 par(mfrow=c(2,2))
-qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="Low"])
-qqline(creatinine_phosphokinase[ejection_fraction_classes=="Low"])
-qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="Medium"])
-qqline(creatinine_phosphokinase[ejection_fraction_classes=="Medium"])
-qqnorm(creatinine_phosphokinase[ejection_fraction_classes=="High"])
-qqline(creatinine_phosphokinase[ejection_fraction_classes=="High"])
+qqnorm(serum_sodium[ejection_fraction_classes=="Low"])
+qqline(serum_sodium[ejection_fraction_classes=="Low"])
+qqnorm(serum_sodium[ejection_fraction_classes=="Medium"])
+qqline(serum_sodium[ejection_fraction_classes=="Medium"])
+qqnorm(serum_sodium[ejection_fraction_classes=="High"])
+qqline(serum_sodium[ejection_fraction_classes=="High"])
 ```
+
+The plots shows clear difference between the means and the medians of the group.
+
+Through the anova test it is possible to determine whether the means of the groups are significantly different. 
+Null hypothesis: groups means are equal
+Alternative hypothesis: groups means differ.
 
 ```{r}
 oneway.test(creatinine_phosphokinase~ejection_fraction_classes, var.equal = TRUE)
 ```
+According to a level of confidence of 0.95 we can reject the null hypothesis and consider the means of the groups different.
 
-Since the p-value is greater than 0.05 we fail to reject the null hypothesis and so we can say that the means are equal.
+Additionally, Tukey Honest Significant Differences test is performed in order to see pairwise mean differences of the groups.
+
+```{r}
+res.aov <- aov(serum_sodium~ejection_fraction_classes, data = heart)
+TukeyHSD(res.aov)
+```
+
+As might be expected, the most significant difference between groups is the one between Low and High levels.
