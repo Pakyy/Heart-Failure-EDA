@@ -394,9 +394,9 @@ qqline(serum_sodium[ejection_fraction_classes=="High"])
 <br>
 The qqplot shows that normality can be assumed even if the High level contains only 5 observations.  
 
-Through the anova test it is possible to determine whether the means of the groups are significantly different.    
-Null hypothesis: groups means are equal.  
-Alternative hypothesis: groups means differ.  
+Through the anova test it is possible to determine whether the means of the groups are significantly different.  
+**Null hypothesis**: groups means are equal.  
+**Alternative hypothesis**: groups means differ.  
 
 ```{r}
 oneway.test(creatinine_phosphokinase~ejection_fraction_classes, var.equal = TRUE)
