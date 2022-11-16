@@ -302,9 +302,9 @@ heart$ejection_fraction_classes = as.factor(heart$ejection_fraction_classes)
 ft1 = ftable(heart$sex, heart$ejection_fraction_classes, heart$DEATH_EVENT)
 ft1
 ```
-
-Null hypothesis: Rows and Columns are independent
-Alternative hypothesis: Column variables depend on rows variables.
+<br>
+**Null hypothesis**: Rows and Columns are independent  
+**Alternative hypothesis**: Column variables depend on rows variables.
 
 ```{r Test, message=FALSE, warning=FALSE}
 chisq = chisq.test(ft1)
