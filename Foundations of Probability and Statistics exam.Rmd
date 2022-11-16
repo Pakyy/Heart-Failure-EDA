@@ -1,0 +1,415 @@
+---
+title: "Foundations of Probability and Statistics"
+author: "Pasquale Gravante & Antonio Mastroianni"
+date: "2022-10-24"
+output: 
+  html_document:
+    df_print: paged
+    code_folding: hide
+    toc: true
+    number_sections: true
+---
+
+# DATA DESCRIPTION
+
+The dataset consists of data regarding a sample consisting of  **299 patients** possibly affected by cardiovascular deseases.
+The variables taken into account for the analysis are:
+
+*   **Age**: integer representing the age of the patient
+*   **Sex**: sex of the patient **(Boolean)**
+*   **Anaemia**: decrease of red blood cells or hemoglobin **(Boolean)**
+*   **Creatinine_phosphokinase**: level of the CPK enzyme in the blood **(mcg/L)**
+*   **Diabetes**: whether the patient has diabetes **(Boolean)**
+*   **Ejection_fraction**: Percentage of blood leaving the heart at each contraction
+*   **high_blood_pressure**: whether the patient suffers from hypertension
+*   **Platelets**: Platelets in the blood **(kiloplatelets/mL)*
+*   **serum_creatinine**: Level of serum creatinine in the blood **(mg/dL)**
+*   **serum_sodium**: Level of serum sodium in the blood **(mEq/L)**
+*   **Smoking**: If the patient smokes or not **(Boolean)**
+*   **Time**: Follow-up period **(days)**
+*   **Death_event**: If the patient died for a cardiac arrest or not **(Boolean)**
+
+```{r Libraries, echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(gridExtra)
+library(GGally)
+library(moments)
+library(corrplot)
+```
+
+First of all, we decided to transform our categorical data into factors since they were recognized as integers.
+
+```{r}
+heart <- read.csv("~/Downloads/heart_failure_clinical_records_dataset.csv")
+glimpse(heart)
+```
+  
+<br>
+The table shows the dataframe after transformation.
+
+```{r Editing column type}
+for (i in c(2,4,6,13)){
+  heart[,i] = as.factor(heart[,i])
+}
+heart$sex[heart$sex==0] <- 'Female'
+heart$sex[heart$sex==1] <- 'Male'
+heart$smoking[heart$smoking==0] <- 'No'
+heart$smoking[heart$smoking==1] <- 'Yes'
+heart$sex = as.factor(heart$sex)
+heart$smoking = as.factor(heart$smoking)
+glimpse(heart)
+```
+
+***
+
+# EDA
+
+The table represents all indices for each quantitative variable.
+
+```{r Data summary}
+data.frame(unclass(summary(heart[,-c(2,4,6,10,11,13)])), check.names = FALSE, stringsAsFactors = FALSE)
+```
+
+***
+
+## Measures of central tendency
+
+<br><br>
+
+The age histogram consists of 6 intervals, each of which has length 10. Density is represented on the y axis. Mean is represented by a red line which assumes a value around 61. The majority of the patients tested are aged in the interval 45-75
+ 
+```{r Age histogram}
+ggplot(heart, aes(x = age)) +
+  geom_histogram(aes(y = ..density..), binwidth = 10, fill = 'cyan3', color = 'white') +
+  theme_minimal() + 
+  geom_vline(xintercept = mean(heart$age), color = 'deeppink2') +
+  labs(x = 'Age', y='Density')+
+  scale_x_continuous(breaks= c(35, 45,55,65,75,85,95))
+```
+<br><br>
+
+A comparison is made for the variable "creatinine_phosphokinase", which represents the concentration level for the enzyme CPK in the blood for male and females.
+```{r Central Tendency}
+ggplot(heart, aes(x = creatinine_phosphokinase, color = sex))+
+  stat_ecdf()+
+  labs(x = 'CPK', y='F(CPK)')
+sex <- c('Male','Female')
+mean <- c(mean(filter(heart, sex == 'Male')$creatinine_phosphokinase),mean(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+median <- c(median(filter(heart, sex == 'Male')$creatinine_phosphokinase),median(filter(heart, sex == 'Female')$creatinine_phosphokinase)
+)
+data.frame(sex, mean, median)
+```
+<br><br>
+
+
+CPK concentration is higher in males with respect to females. 
+This is proven by the values for the means in the table above.
+The following histogram shows the impact of outliers for the mean (red). The meadian(purple) instead is not affected by the presence of outliers. 
+
+```{r}
+ggplot(heart, aes(x = creatinine_phosphokinase)) +
+  geom_histogram(aes(y = ..density..), binwidth = 100, fill = 'cyan3', color = 'white') +
+  theme_minimal() + 
+  geom_vline(xintercept = mean(heart$creatinine_phosphokinase), color = 'deeppink2') +
+  geom_vline(xintercept = median(heart$creatinine_phosphokinase), color = 'purple') +
+  labs(x = 'CPK', y='Density')
+```
+<br>
+The median is more centered with respect to the mean. The reason for this is that mean is pulled towards extreme values.
+
+***
+
+## Variability measures
+
+<br><br>
+
+
+The following table shows the values for variance, standard deviation, range of variation, interquartile range and median absolute deviation of the CPK concentration for males and females.
+
+```{r Variability measures, message = FALSE, warning = FALSE}
+attach(heart)
+var <- c(var(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+var(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+sd <- c(sd(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+sd(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+RoV <- c(diff(range(filter(heart, sex == 'Male')$creatinine_phosphokinase)),
+diff(range(filter(heart, sex == 'Female')$creatinine_phosphokinase)))
+interquartile_range <- function(x){
+diff(quantile(x, probs = c(0.25, 0.75)))
+}
+iq <- c(interquartile_range(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+interquartile_range(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+MAD <- function(x) {
+median(abs(x - median(x)))
+}
+mad <- c(MAD(filter(heart, sex == 'Male')$creatinine_phosphokinase),
+MAD(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+data.frame(sex, var, sd, RoV, iq, mad)
+```
+<br>
+
+Variance for males is generally higher with respect to females. Moreover, standard deviations of the two groups is higher with respect to Median Absolute Deviation because the mean is pulled towards the highest values of CPK concentration.
+
+***
+
+## Visualizations
+
+<br>
+
+The following boxplots show the variability of Serum-Creatinine, CPK, platelets concentration and ejetion fraction according to a categorical variable.
+
+```{r Boxplots fumatori}
+bp5 = ggplot(heart, aes(x = smoking, y = serum_creatinine, fill = smoking)) + geom_boxplot() 
+bp6 = ggplot(heart, aes(x = smoking, y = creatinine_phosphokinase, fill = smoking)) + geom_boxplot() 
+bp7 = ggplot(heart, aes(x = smoking, y = platelets, fill = smoking)) + geom_boxplot() 
+bp8 = ggplot(heart, aes(x = smoking, y = ejection_fraction, fill = smoking)) + geom_boxplot() 
+grid.arrange(bp5,bp6,bp7,bp8, nrow = 2)
+```
+
+```{r Boxplots diabetici}
+bp9 = ggplot(heart, aes(x = diabetes, y = serum_creatinine, fill = diabetes)) + geom_boxplot() 
+bp10 = ggplot(heart, aes(x = diabetes, y = creatinine_phosphokinase, fill = diabetes)) + geom_boxplot() 
+bp11 = ggplot(heart, aes(x = diabetes, y = platelets, fill = diabetes)) + geom_boxplot() 
+bp12 = ggplot(heart, aes(x = diabetes, y = ejection_fraction, fill = diabetes)) + geom_boxplot()
+grid.arrange(bp9,bp10,bp11,bp12, nrow = 2)
+```
+<br>
+
+From the boxplots it can be deduced that people who smoke and have diabetes generally have lower values for the ejection fraction. This is generally considered a possible cause for Cardiomyopathy.
+
+***
+
+## 3rd and 4th moment
+
+<br>
+
+```{r 3rd and 4th moment }
+heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
+d1 <- ggplot(filter(heart, sex == 'Male'), aes(x= cpk_standard, color = sex ))+
+  geom_density(color = '#6dca7c')+
+  labs(x='CPK', title = 'CPK concentration for males')+
+  theme_bw()+
+    scale_x_continuous(breaks= c(-1,0,1,2,3,4,5,6,7))
+d2 <- ggplot(filter(heart, sex == 'Female'), aes(x= cpk_standard ))+
+  geom_density(color = '#933183')+
+  labs(x='CPK', title = 'CPK concentration for females')+
+  theme_bw()+
+  scale_x_continuous(breaks= c(-1,0,1,2,3,4))
+grid.arrange(d1, d2)
+#add labels
+skew <- c(skewness(filter(heart, sex == 'Male')$creatinine_phosphokinase), skewness(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+kurt <- c(kurtosis(filter(heart, sex == 'Male')$creatinine_phosphokinase), kurtosis(filter(heart, sex == 'Female')$creatinine_phosphokinase))
+data.frame(sex, skew, kurt)
+```
+<br><br>
+
+Both distributions are asymmetrical and very pointed.  
+Men distribution presents a heavier right tale with respect to women. It is more pointed aswell.
+
+***
+
+# DEPENDENCY
+
+<br><br>
+
+In order to understand which variables might be related a paired scatterplot is represented.
+
+```{r Paired Scatterplots}
+ggpairs(heart, columns = c(1,3,5,7,8,9), aes(color = sex), diag = list(continuous = 'blankDiag'), upper = list(continuous = 'points'))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
+```
+<br><br>
+Scatters are colored according to "sex" variable. Apparently, there is not any relation between variables.   
+Let's get a look at the numbers to check if this is true by checking a variance-covariance matrix and through a correlationplot.
+
+```{r Variance covariance matrix}
+as.data.frame(cov(heart[,c(1,3,5,7,8,9)]))
+```
+
+```{r Correlation matrix}
+corrplot(cor(heart[,c(1,3,5,7,8,9)]), method = 'color', addCoef.col = '#4d4c4b', order ='AOE', diag = FALSE, cl.cex = 0.5, tl.col='Black', tl.cex=0.8, tl.srt=70 ,)
+```
+
+<br><br>
+
+The correlationplot shows the absence of strong correlations between the variables taken into account.
+THe highest(negative) correlation value is between 'serum_creatinine' and 'serum_sodium'.
+
+<br>
+
+***
+
+## Linear Regression
+
+Let's give a look at the regression line for these two variables.
+
+```{r Linear Regression, message=FALSE, warning=FALSE}
+ggplot(heart, aes(x = serum_sodium, y = serum_creatinine, color = sex))+
+  geom_point()+
+  geom_smooth(method="lm", se = FALSE, color = 'deeppink3')
+```
+<br>
+
+As expected, there is negative relation between Serum Creatinine and Serum Sodium concentration variables. As the latter decreases, the first increases.
+
+
+```{r Parameters}
+reg <-lm(formula = heart$serum_creatinine ~ heart$serum_sodium)
+as.data.frame(reg$coefficients)
+```
+
+<br><br>
+
+In particular, when the level of Serum Creatinine is, in theory, equal to 0, the value for Serum Sodium is equal to 137.75.
+The unitary increase of Serum Sodium implies the decrease in Serum Creatinine of 0.80.
+
+***
+
+## R-squared
+
+<br><br>
+
+While the goodness of fitness is equal to:
+
+```{r Goodness of fitness}
+cor(heart$serum_creatinine, heart$serum_sodium)^2
+```
+<br>
+
+R^2 value is very low. Only 3.5% of the total variability of the data is explained by the displayed regression model.
+Hence, the model doesn't fit the data.
+
+***
+
+## Chi-squared
+
+<br>
+
+The objective of this section is to look for statistically significant  dependency between categorical variables.
+
+The table represents Sex, Ejection Fraction divided in 3 classes(Low, Medium, High) and the target variable "Death Event"(0 = Not dead, 1 = Dead).
+
+```{r Contingency table and chi-square, message=FALSE, warning=FALSE}
+classes = cut(heart$ejection_fraction, c(14, 30, 60, 80))
+classes = as.character(classes)
+heart$ejection_fraction_classes = classes
+heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(14,30]"] = "Low"
+heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(30,60]"] = "Medium"
+heart$ejection_fraction_classes[heart$ejection_fraction_classes == "(60,80]"] = "High"
+heart$ejection_fraction_classes = as.factor(heart$ejection_fraction_classes)
+ft1 = ftable(heart$sex, heart$ejection_fraction_classes, heart$DEATH_EVENT)
+ft1
+```
+<br>
+**Null hypothesis**: Rows and Columns are independent  
+**Alternative hypothesis**: Column variables depend on rows variables.
+
+```{r Test, message=FALSE, warning=FALSE}
+chisq = chisq.test(ft1)
+chisq.test(ft1)
+```
+<br>
+P-value is significant with a confidence level of 0.99. Hence the null hypothesis is rejected in favor of the alternative.
+Hence, we assume that the there is dependence.
+
+```{r Residuals}
+chisq$residuals
+```
+<br>
+
+Residuals show which categories are more impactful on the dependency.
+In particular, Low values of ejection fraction cause an incraese in deaths.  
+
+<br><br>
+
+***
+
+# INFERENCE
+
+## Confidence Intervals
+
+<br><br>
+
+Let's take into account the CPK concentration variable. We want to know, based on the observations in the sample, what is the confidence interval containing the mean of the population.  
+We are going to perform a t-test because the variance of the population is not known.    
+
+In order to perform t-tests, we are going to assume that the distribution of our variable is normal with mean μ and variance σ.    
+
+We are going to consider a confidence level of 0.99  
+
+```{r Confidence Intervals}
+t.test(heart$creatinine_phosphokinase, alternative = "two.sided", conf.level = 0.99)
+```
+
+<br><br>
+
+The mean of the population resides in the interval [436.37; 727.30] with a confidence level of 0.99.  
+Let's assume to reduce our confidence level to 0.95.  
+
+As expected, the confidence interval narrows as the confidence level decreases.  
+Let's also assume the case in which the analyzed sample has a smaller dimension.  
+In order to do that, we are going to sample without replacement our data and get 150 observation.  
+
+```{r Bootstrap Confidence interval}
+h <- sample(heart$creatinine_phosphokinase, 150, replace = FALSE)
+t.test(h, alternative = "two.sided", conf.level = 0.95)
+```
+<br><br>
+As expected, when the sample dimension is reduced, the confidence interval increases.
+
+## ANOVA
+
+<br>
+
+The aim is to compare mean for the Serum Sodium variable according to the three levels of Ejection Fraction(Low, Medium, High).
+The levels for Ejection Fraction were created according to a trustable medicine website (https://www.medicalnewstoday.com/articles/ejection-fraction#results). 
+
+```{r message=FALSE, warning=FALSE}
+attach(heart)
+plot(serum_sodium~ejection_fraction_classes)
+```
+<br><br>
+
+The boxplot shows different distributions for the target variable levels. This is caused by the different interval range of each class.  
+However, the median for each of the three groups looks similar. Additionally, it is possible to see that Ejection Fraction values are tendentially proportional to the levels of the Serum Sodium levels.
+
+```{r message=FALSE, warning=FALSE}
+plot.design(serum_sodium~ejection_fraction_classes)
+plot.design(serum_sodium~ejection_fraction_classes, fun = median)
+```
+<br>
+The plots shows clear difference between the means and the medians of the group.
+
+```{r}
+par(mfrow=c(2,2))
+qqnorm(serum_sodium[ejection_fraction_classes=="Low"])
+qqline(serum_sodium[ejection_fraction_classes=="Low"])
+qqnorm(serum_sodium[ejection_fraction_classes=="Medium"])
+qqline(serum_sodium[ejection_fraction_classes=="Medium"])
+qqnorm(serum_sodium[ejection_fraction_classes=="High"])
+qqline(serum_sodium[ejection_fraction_classes=="High"])
+```
+<br>
+The qqplot shows that normality can be assumed even if the High level contains only 5 observations.  
+
+Through the anova test it is possible to determine whether the means of the groups are significantly different.  
+**Null hypothesis**: groups means are equal.  
+**Alternative hypothesis**: groups means differ.  
+
+```{r}
+oneway.test(creatinine_phosphokinase~ejection_fraction_classes, var.equal = TRUE)
+``` 
+<br>
+According to a level of confidence of 0.95 we can reject the null hypothesis and consider the means of the groups different.
+
+Additionally, Tukey Honest Significant Differences test is performed in order to see pairwise mean differences of the groups.
+
+```{r}
+res.aov <- aov(serum_sodium~ejection_fraction_classes, data = heart)
+TukeyHSD(res.aov)
+```
+<br>
+As might be expected, the most significant difference between groups is the one between Low and High levels.
