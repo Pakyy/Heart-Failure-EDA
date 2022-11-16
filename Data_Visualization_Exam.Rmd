@@ -72,8 +72,8 @@ data.frame(unclass(summary(heart[,-c(2,4,6,10,11,13)])), check.names = FALSE, st
 
 ## Measures of central tendency
 
-The age histogram consists of 6 intervals, each of which has length 10. Density is represented on the y axis. Mean is represented by a red line.
-
+The age histogram consists of 6 intervals, each of which has length 10. Density is represented on the y axis. Mean is represented by a red line which assumes a value around 61. The majority of the patients tested are aged in the interval 45-75
+ 
 ```{r Age histogram}
 ggplot(heart, aes(x = age)) +
   geom_histogram(aes(y = ..density..), binwidth = 10, fill = 'cyan3', color = 'white') +
@@ -96,7 +96,7 @@ median <- c(median(filter(heart, sex == 'Male')$creatinine_phosphokinase),median
 data.frame(sex, mean, median)
 ```
 
-CPK concentration is higher in male with respect to females. 
+CPK concentration is higher in males with respect to females. 
 This is proven by the values for the means in the table above.
 The following histogram shows the impact of outliers for the mean (red). The meadian(purple) instead is not affected by the presence of outliers. 
 
@@ -133,6 +133,8 @@ mad <- c(MAD(filter(heart, sex == 'Male')$creatinine_phosphokinase),
 MAD(filter(heart, sex == 'Female')$creatinine_phosphokinase))
 data.frame(sex, var, sd, RoV, iq, mad)
 ```
+Variance for males is generally higher with respect to females. Moreover, standard deviations of the two groups is higher with respect to Median Absolute Deviation because the mean is pulled towards the highest values of CPK concentration.
+
 ## Visualizations
 
 The following boxplots show the variability of Serum-Creatinine, CPK, platelets concentration and ejetion fraction according to a categorical variable.
@@ -159,7 +161,6 @@ From the boxplots it can be deduced that people who smoke and have diabetes gene
 
 ```{r 3rd and 4th moment }
 heart$cpk_standard <- scale(heart$creatinine_phosphokinase)
-mean(heart$cpk_standard)
 d1 <- ggplot(filter(heart, sex == 'Male'), aes(x= cpk_standard, color = sex ))+
   geom_density(color = '#6dca7c')+
   labs(x='CPK', title = 'CPK concentration for males')+
