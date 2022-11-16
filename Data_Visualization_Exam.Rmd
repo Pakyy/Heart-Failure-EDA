@@ -321,12 +321,16 @@ The levels for Ejection Fraction were created according to a trustable medicine 
 ```{r message=FALSE, warning=FALSE}
 attach(heart)
 plot(serum_sodium~ejection_fraction_classes)
-plot.design(serum_sodium~ejection_fraction_classes)
-plot.design(serum_sodium~ejection_fraction_classes, fun = median)
 ```
 
 The boxplot shows different distributions for the target variable levels. This is caused by the different interval range of each class.
 However, the median for each of the three groups looks similar. Additionally, it is possible to see that Ejection Fraction values are tendentially proportional to the levels of the Serum Sodium levels.
+
+```{r message=FALSE, warning=FALSE}
+plot.design(serum_sodium~ejection_fraction_classes)
+plot.design(serum_sodium~ejection_fraction_classes, fun = median)
+```
+The plots shows clear difference between the means and the medians of the group.
 
 ```{r}
 par(mfrow=c(2,2))
@@ -337,8 +341,8 @@ qqline(serum_sodium[ejection_fraction_classes=="Medium"])
 qqnorm(serum_sodium[ejection_fraction_classes=="High"])
 qqline(serum_sodium[ejection_fraction_classes=="High"])
 ```
+The qqplot shows that normality can be assumed even if the High level contains only 5 observations. 
 
-The plots shows clear difference between the means and the medians of the group.
 
 Through the anova test it is possible to determine whether the means of the groups are significantly different. 
 Null hypothesis: groups means are equal
@@ -355,5 +359,4 @@ Additionally, Tukey Honest Significant Differences test is performed in order to
 res.aov <- aov(serum_sodium~ejection_fraction_classes, data = heart)
 TukeyHSD(res.aov)
 ```
-
 As might be expected, the most significant difference between groups is the one between Low and High levels.
